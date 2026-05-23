@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio — Samradh Joshi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #222222;
+      --accent: #c8f542;
+      --accent2: #ff6b35;
+      --text: #f0f0f0;
+      --muted: #666;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, background 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.35s cubic-bezier(.25,.46,.45,.94);
+      opacity: 0.5;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9997;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      font-family: var(--font-display);
+      font-size: clamp(8rem, 22vw, 22rem);
+      font-weight: 800;
+      color: transparent;
+      -webkit-text-stroke: 1px #1a1a1a;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.04em;
+    }
+    .hero-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.2s forwards;
+    }
+    .hero-tag span {
+      display: inline-block;
+      width: 2rem;
+      height: 1px;
+      background: var(--accent);
+      margin-right: 0.75rem;
+      vertical-align: middle;
+    }
+    .hero-name {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 9vw, 9rem);
+      font-weight: 800;
+      line-height: 0.92;
+      letter-spacing: -0.04em;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.4s forwards;
+    }
+    .hero-name em {
+      font-style: normal;
+      color: var(--accent);
+      display: block;
+    }
+    .hero-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 3.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.6s forwards;
+    }
+    .hero-desc {
+      max-width: 380px;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+    .hero-links {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: all 0.2s;
+      cursor: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--accent);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: var(--surface);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      padding: 0.85rem 0;
+      background: var(--surface);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 3rem;
+      animation: marquee 20s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .marquee-item::after {
+      content: '✦';
+      color: var(--accent);
+      font-size: 0.6rem;
+    }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* SECTIONS */
+    section {
+      padding: 7rem 3rem;
+      border-top: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      max-width: 4rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin-bottom: 4rem;
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .about-text p {
+      font-size: 0.9rem;
+      line-height: 2;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .about-text p strong { color: var(--text); }
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      border-radius: 4px;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--accent); }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    .skill-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: 2px;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      color: var(--muted);
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .skill-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(200, 245, 66, 0.04);
+    }
+
+    /* PROJECTS */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+      position: relative;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+    .project-thumb {
+      height: 200px;
+      background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 800;
+      color: #1e1e1e;
+      -webkit-text-stroke: 1px #2a2a2a;
+      letter-spacing: -0.05em;
+      overflow: hidden;
+      position: relative;
+    }
+    .project-thumb::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(transparent, var(--surface));
+    }
+    .project-accent {
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.3s;
+    }
+    .project-card:hover .project-accent { transform: scaleY(1); }
+    .project-body { padding: 1.75rem; }
+    .project-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .project-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .project-desc {
+      font-size: 0.78rem;
+      line-height: 1.8;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .project-links {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .project-link {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .project-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* CONTACT */
+    .contact-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .contact-inner .section-title { margin-bottom: 1.5rem; }
+    .contact-inner p {
+      font-size: 0.85rem;
+      line-height: 2;
+      color: var(--muted);
+      margin-bottom: 3rem;
+    }
+    .contact-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .email-link {
+      display: block;
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.25rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .email-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* FOOTER */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .footer-social {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-social a {
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      transition: color 0.2s;
+    }
+    .footer-social a:hover { color: var(--accent); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s, transform 0.7s;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .hero { padding: 0 1.5rem 4rem; }
+      section { padding: 5rem 1.5rem; }
+      footer { padding: 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .hero-footer { flex-direction: column; align-items: flex-start; gap: 2rem; }
+    }
+    .profile-pic {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 6px rgba(200, 245, 66, 0.1);
+  margin-bottom: 2rem;
+  display: block;
+}
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">SJ.</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg-text">SAMRADH</div>
+    <div class="hero-tag"><span></span>Available for freelance & full-time roles</div>
+    <h1 class="hero-name">
+      <br>
+      <em>Samradh Joshi</em>
+    </h1>
+    <div class="hero-footer">
+        <div class="about-textdiv">
+            <img src="samradhpic.png" alt="Your Name" class="profile-pic">
+        </div>
+      <p class="hero-desc">
+        Full-stack developer crafting performant, accessible, and beautifully designed digital experiences. Based in <strong>Delhi</strong>.
+      </p>
+      <div class="hero-links">
+        <a href="https://github.com/samradh4" target="_blank" class="btn btn-primary">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.43 7.86 10.96.57.1.78-.25.78-.55v-1.93C5.89 21.1 5.21 18.9 5.21 18.9c-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17a10.94 10.94 0 0 1 2.87-.39c.97 0 1.95.13 2.87.39 2.18-1.48 3.14-1.17 3.14-1.17.63 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.2.66.79.55A10.51 10.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+          GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/samradh-joshi-084a1929a/" target="_blank" class="btn btn-secondary">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.35-1.85 3.58 0 4.24 2.36 4.24 5.43v6.31zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.55C0 23.23.79 24 1.77 24h20.44c.99 0 1.79-.77 1.79-1.72V1.73C24 .77 23.21 0 22.22 0z"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <div class="marquee-item">React</div>
+      <div class="marquee-item">Node.js</div>
+      <div class="marquee-item">TypeScript</div>
+      <div class="marquee-item">Python</div>
+      <div class="marquee-item">PostgreSQL</div>
+      <div class="marquee-item">Docker</div>
+      <div class="marquee-item">Next.js</div>
+      <div class="marquee-item">Tailwind CSS</div>
+      <div class="marquee-item">AWS</div>
+      <div class="marquee-item">GraphQL</div>
+      <!-- duplicate for seamless loop -->
+      <div class="marquee-item">React</div>
+      <div class="marquee-item">Node.js</div>
+      <div class="marquee-item">TypeScript</div>
+      <div class="marquee-item">Python</div>
+      <div class="marquee-item">PostgreSQL</div>
+      <div class="marquee-item">Docker</div>
+      <div class="marquee-item">Next.js</div>
+      <div class="marquee-item">Tailwind CSS</div>
+      <div class="marquee-item">AWS</div>
+      <div class="marquee-item">GraphQL</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">01 — About</p>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2 class="section-title">Building things<br>that <em style="font-style:normal;color:var(--accent)">matter.</em></h2>
+        <p>I'm <strong>Samradh Joshi</strong>, a developer passionate about crafting elegant solutions to complex problems. I bridge the gap between design and engineering to build products people actually enjoy using.</p>
+        <p>When I'm not coding, I'm exploring open-source projects, writing about web development, or hunting for the perfect espresso.</p>
+        <a href="https://github.com/samradh4" class="btn btn-primary" target="_blank" style="margin-top:1.5rem;display:inline-flex;">
+          View my GitHub
+        </a>
+      </div>
+      <div class="about-stats reveal" style="transition-delay:0.15s">
+        <div class="stat-card">
+          <div class="stat-number">3+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">20+</div>
+          <div class="stat-label">Projects Shipped</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">10+</div>
+          <div class="stat-label">Open Source Contributions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Bugs Squashed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div style="margin-top:5rem">
+      <p class="section-label reveal">Stack & Tools</p>
+      <div class="skills-grid reveal">
+        <div class="skill-pill">JavaScript</div>
+        <div class="skill-pill">TypeScript</div>
+        <div class="skill-pill">React</div>
+        <div class="skill-pill">Next.js</div>
+        <div class="skill-pill">Node.js</div>
+        <div class="skill-pill">Python</div>
+        <div class="skill-pill">PostgreSQL</div>
+        <div class="skill-pill">MongoDB</div>
+        <div class="skill-pill">Docker</div>
+        <div class="skill-pill">AWS</div>
+        <div class="skill-pill">Git</div>
+        <div class="skill-pill">Figma</div>
+        <div class="skill-pill">GraphQL</div>
+        <div class="skill-pill">Tailwind</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <p class="section-label">02 — Work</p>
+    <h2 class="section-title reveal">Selected<br>Projects</h2>
+    <div class="projects-grid">
+
+      <div class="project-card reveal">
+        <div class="project-accent"></div>
+        <div class="project-thumb">P1</div>
+        <div class="project-body">
+          <p class="project-tag">Web App · 2024</p>
+          <h3 class="project-title">Soon</h3>
+          <p class="project-desc">A brief description of what this project does and the problem it solves. Built with React and Node.js.</p>
+          <div class="project-links">
+            <a href="https://github.com/samradh4" class="project-link" target="_blank">GitHub</a>
+            <a href="#" class="project-link">Live Demo ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" style="transition-delay:0.1s">
+        <div class="project-accent"></div>
+        <div class="project-thumb">P2</div>
+        <div class="project-body">
+          <p class="project-tag">API · 2024</p>
+          <h3 class="project-title">Soon</h3>
+          <p class="project-desc">An API service that handles thousands of requests daily. Built with Python and PostgreSQL for reliability.</p>
+          <div class="project-links">
+            <a href="https://github.com/samradh4 class="project-link" target="_blank">GitHub</a>
+            <a href="#" class="project-link">Docs ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" style="transition-delay:0.2s">
+        <div class="project-accent"></div>
+        <div class="project-thumb">P3</div>
+        <div class="project-body">
+          <p class="project-tag">Open Source · 2023</p>
+          <h3 class="project-title">Soon</h3>
+          <p class="project-desc">An open-source tool adopted by 500+ developers. Simplifies a tedious workflow into a single command.</p>
+          <div class="project-links">
+            <a href="https://github.com/samradh4" class="project-link" target="_blank">GitHub</a>
+            <a href="#" class="project-link">NPM ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:3rem" class="reveal">
+      <a href="https://github.com/samradh4" class="btn btn-secondary" target="_blank">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.43 7.86 10.96.57.1.78-.25.78-.55v-1.93C5.89 21.1 5.21 18.9 5.21 18.9c-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17a10.94 10.94 0 0 1 2.87-.39c.97 0 1.95.13 2.87.39 2.18-1.48 3.14-1.17 3.14-1.17.63 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.2.66.79.55A10.51 10.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+        See all repositories on GitHub
+      </a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <p class="section-label">03 — Contact</p>
+    <div class="contact-inner reveal">
+      <h2 class="section-title">Let's build<br>something <em style="font-style:normal;color:var(--accent)">great.</em></h2>
+      <p>Have a project in mind or just want to chat? My inbox is always open. Whether it's a freelance gig, a full-time role, or just a hello — I'll get back to you.</p>
+      <a href="samradhjoshi4@gmail.com" class="email-link">samradhjoshi4@gmail.com</a>
+      <div class="contact-buttons">
+        <a href="https://github.com/samradh4" class="btn btn-secondary" target="_blank">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.1 3.29 9.43 7.86 10.96.57.1.78-.25.78-.55v-1.93C5.89 21.1 5.21 18.9 5.21 18.9c-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17a10.94 10.94 0 0 1 2.87-.39c.97 0 1.95.13 2.87.39 2.18-1.48 3.14-1.17 3.14-1.17.63 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.2.66.79.55A10.51 10.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+          GitHub
+        </a>
+        <a href="https://linkedin.com/in/yourusername" class="btn btn-primary" target="_blank">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.34V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.35-1.85 3.58 0 4.24 2.36 4.24 5.43v6.31zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.55C0 23.23.79 24 1.77 24h20.44c.99 0 1.79-.77 1.79-1.72V1.73C24 .77 23.21 0 22.22 0z"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 Samradh. All rights reserved.</span>
+    <div class="footer-social">
+      <a href="https://github.com/samradh4" target="_blank">GitHub</a>
+      <a href="https://linkedin.com/in/yourusername" target="_blank">LinkedIn</a>
+      <a href="samradhjoshi4@gmail.com">Email</a>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+      setTimeout(() => {
+        ring.style.left = e.clientX + 'px';
+        ring.style.top = e.clientY + 'px';
+      }, 80);
+    });
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+        ring.style.opacity = '1';
+        ring.style.transform = 'translate(-50%,-50%) scale(1.5)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.opacity = '0.5';
+        ring.style.transform = 'translate(-50%,-50%) scale(1)';
+      });
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(r => observer.observe(r));
+  </script>
+</body>
+</html>
